@@ -1,0 +1,19 @@
+[Unit]
+Description=Simple Go web service that serves a web endpoint that returns the IP address of the client that made the request
+After=network.target
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Type=simple
+Environment="HNIS_PORT=8989"
+Environment="HNIS_TLS_CERT=[EXACT_PATH_OF_CERT_FILE]"
+Environment="HNIS_TLS_KEY=[EXACT_PATH_OF_KEY_FILE]"
+ExecStart=[EXACT_PATH_OF_RUNNABLE]
+WorkingDirectory=[EXACT_PATH_OF_WORKING_FOLDER]
+Restart=always
+RestartSec=2
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=%n

@@ -50,6 +50,25 @@ GOOS=linux GOARCH=amd64 go build
 GOOS=windows GOARCH=amd64 go build
 ```
 
+### Run as systemd service
+1. Edit ipserver.service.template then rename it to ipserver.service
+2. Run following commands one by one.
+```bash
+cp ipserver.service /etc/systemd/system/
+systemctl deamon-reload
+systemctl enable ipserver
+systemctl start ipserver
+```
+
+#### For delete systemd unit
+```bash
+systemctl stop ipserver
+systemctl disable ipserver
+rm /etc/systemd/system/ipserver.service
+systemctl daemon-reload
+systemctl reset-failed
+```
+
 ### License
 
 This code is released under the MIT License. See LICENSE.md for details.
