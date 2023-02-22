@@ -9,7 +9,11 @@ import (
 	"os"
 )
 
-var port = flag.String("port", "8080", "the port to listen on")
+var (
+	port = flag.String("port", "8080", "the port to listen on")
+	cert = flag.String("cert", "", "the path of cert pem file")
+	key  = flag.String("key", "", "the path of key file")
+)
 
 func main() {
 	flag.Parse()
@@ -41,13 +45,20 @@ func main() {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
+		setupCORS(&w, r)
 		w.Write(jsonData)
 	})
 
 	addr := ":" + *port
 	fmt.Printf("Serving on port %s\n", *port)
-	if err := http.ListenAndServe(addr, nil); err != nil {
-		panic(err)
+	if len(*cert) == 0 || len(*key) == 0 {
+		if err := http.ListenAndServe(addr, nil); err != nil {
+			panic(err)
+		}
+	} else {
+		if err := http.ListenAndServeTLS(addr, *cert, *key, nil); err != nil {
+			panic(err)
+		}
 	}
 }
 
@@ -55,4 +66,16 @@ func init() {
 	if p := os.Getenv("HNIS_PORT"); p != "" {
 		port = &p
 	}
+	if k := os.Getenv("HNIS_TLS_KEY"); k != "" {
+		key = &k
+	}
+	if c := os.Getenv("HNIS_TLS_CERT"); c != "" {
+		cert = &c
+	}
+}
+
+func setupCORS(w *http.ResponseWriter, req *http.Request) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	(*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 }
